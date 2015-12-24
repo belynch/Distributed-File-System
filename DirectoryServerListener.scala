@@ -64,18 +64,16 @@ class DirectoryServerListener(socket:Socket, serverInterface:DirectoryServerInte
 	}
 	
 	def disconnect() {
-		sOut.println("DISCONNECTED FROM DIRECTORY SERVER"
-						+ "\nIP:" + IPaddress 
-						+ "\nPort:" + serverInterface.getPort)
-		sOut.flush()				
+		sOut.println("\DISCONNECTED FROM DIRECTORY SERVER")
+		
 		sOut.close
 		sIn.close
 		socket.close
 	}
 	
 	def killService(){
-		serverInterface.shutdown()
 		socket.close()
+		serverInterface.shutdown()
 	}
 	
 }

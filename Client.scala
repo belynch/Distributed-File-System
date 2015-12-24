@@ -1,4 +1,4 @@
-import java.io.{BufferedReader, InputStreamReader, PrintWriter, BufferedWriter, OutputStreamWriter}
+import java.io._
 import java.net.Socket
 
 object Client {
@@ -19,31 +19,17 @@ object Client {
 		
 			///////////////////TEST1/////////////////////
 			sOut.println("HELO")
-			sOut.flush()
+			out.flush()
 			println("sent HELO")
 			
 			message = sIn.readLine()
 			println("Received message: " + message)
 			
 			///////////////////TEST2/////////////////////
-			//sOut.println("KILL_SERVICE")
-			//sOut.flush()
-			//println("sent KILL_SERVICE")
+			
+			
 			
 			///////////////////TEST3/////////////////////
-			sOut.println("DISCONNECT")
-			sOut.flush()
-			println("sent DISCONNECT")
-			
-			message = sIn.readLine()
-			println("Received message: " + message)
-			message = sIn.readLine()
-			println("Received message: " + message)
-			message = sIn.readLine()
-			println("Received message: " + message)
-			
-			///////////////////TEST4/////////////////////
-			//READ TEST
 			//query directory server
 		   
 			
@@ -57,8 +43,7 @@ object Client {
 			
 			
 			
-			///////////////////TEST5/////////////////////
-			//WRITE TEST
+			///////////////////TEST4/////////////////////
 			//query directory server
 		   
 			

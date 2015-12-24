@@ -1,2 +1,3 @@
 #!/bin/bash
-scala ChatServer $1
+cd out
+scala DirectoryServer $1 
