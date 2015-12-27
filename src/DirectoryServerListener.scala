@@ -15,8 +15,6 @@ class DirectoryServerListener(socket:Socket, serverInterface:DirectoryServerInte
 	val IPaddress = socket.getLocalAddress().toString().drop(1)
 
 	/**
-	 * Worker run function
-	 *
 	 * Receives messages over a given socket and handles responses.
 	**/
 	def run(){
@@ -27,19 +25,16 @@ class DirectoryServerListener(socket:Socket, serverInterface:DirectoryServerInte
 					message = ""
 					message = sIn.readLine()
 					println("Received message: " + message)
-					//BASE 
+					
 					if(message.startsWith("HELO")){
-						base(message)
+						handleHelo(message)
 					}
-					//TERMINATE CLIENT CONNECTION
 					else if(message.startsWith("DISCONNECT")){
-						disconnect()
+						hadnleDisconnect()
 					}
-					//KILL
 					else if(message == "KILL_SERVICE"){
-						killService()
+						handleKill()
 					}	
-					//UNHANDLED			
 					else{
 						println("unhandled message type")
 					}
@@ -57,13 +52,13 @@ class DirectoryServerListener(socket:Socket, serverInterface:DirectoryServerInte
 						+ "\nERROR_DESCRIPTION: " + description)
 	}
 	
-	def base(message:String){
+	def handleHelo(message:String){
 		sOut.println(message + "\nIP:" + IPaddress 
 								+"\nPort:" + serverInterface.getPort)
 		sOut.flush()
 	}
 	
-	def disconnect() {
+	def hadnleDisconnect() {
 		sOut.println("DISCONNECTED FROM DIRECTORY SERVER"
 						+ "\nIP:" + IPaddress 
 						+ "\nPort:" + serverInterface.getPort)
@@ -73,7 +68,7 @@ class DirectoryServerListener(socket:Socket, serverInterface:DirectoryServerInte
 		socket.close
 	}
 	
-	def killService(){
+	def handleKill(){
 		serverInterface.shutdown()
 		socket.close()
 	}

@@ -42,10 +42,22 @@ object Client {
 			message = sIn.readLine()
 			println("Received message: " + message)
 			
+			
+			/*If a user has a write permission with the directory of D:\Test, then:
+			He can create a Newfolder in Test, but he cannot rename it.
+			He can create a NewFile.txt in Test, but he cannot rename it too.
+			He can open NewFile.txt and write/append data to it
+			He cannot delete NewFolder and NewFile in Test
+			
+			If a user has a modify permission with the directory of D:\Test, then:
+			He can create a Newfolder in Test, and rename it anytime.
+			He can create a NewFile.txt in Test, and rename it anytime.
+			He can open NewFile.txt and write/append data to it
+			He can delete NewFolder and NewFile in Test*/
 			///////////////////TEST4/////////////////////
-			//READ TEST
+			//WRITE TEST
 			//query directory server
-		   
+		    sOut.println("WRITE:")
 			
 			//receive file location
 			

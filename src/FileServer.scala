@@ -56,6 +56,11 @@ object FileServer extends FileServerInterface {
 		}
 	}
 	
+	/**
+	 *
+	 * Returns the server port number
+	 *
+	**/
 	def getPort: String = {
 		return serverSocket.getLocalPort.toString;
 	}

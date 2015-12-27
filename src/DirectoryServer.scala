@@ -24,7 +24,7 @@ object DirectoryServer extends DirectoryServerInterface {
 	
 	/**
 	 *
-	 * Main function which creates and runs a server instance on a given port.
+	 * Main function which initialises and runs the server
 	 *
 	**/
 	def main (args: Array[String]){
@@ -39,7 +39,7 @@ object DirectoryServer extends DirectoryServerInterface {
 	 *
 	 * Receives incomming connections over a server socket and passes them to workers
 	**/
-	def run(): Unit = {
+	def run(){
 		try {
 			println("Server starting on port: " + port)
 			//loop until a worker receives a message to kill the service
@@ -57,6 +57,11 @@ object DirectoryServer extends DirectoryServerInterface {
 		}
 	}
 	
+	/**
+	 *
+	 * Returns the server port number
+	 *
+	**/
 	def getPort: String = {
 		return serverSocket.getLocalPort.toString;
 	}

@@ -16,8 +16,6 @@ class FileServerListener(socket:Socket, serverInterface:FileServerInterface) ext
 
 
 	/**
-	 * Worker run function
-	 *
 	 * Receives messages over a given socket and handles responses.
 	**/
 	def run(){
@@ -28,19 +26,23 @@ class FileServerListener(socket:Socket, serverInterface:FileServerInterface) ext
 					message = ""
 					message = sIn.readLine()
 					println("Received message: " + message)
-					//BASE 
+					
 					if(message.startsWith("HELO")){
-						base(message)
+						handleHelo(message)
 					}
-					//TERMINATE CLIENT CONNECTION
 					else if(message.startsWith("DISCONNECT")){
-						disconnect()
+						hadnleDisconnect()
 					}
-					//KILL
 					else if(message == "KILL_SERVICE"){
-						killService()
+						handleKill()
 					}	
-					//UNHANDLED			
+					
+					//receive replication messages
+					
+					
+					//receive client messages
+					
+					
 					else{
 						println("unhandled message type")
 					}
@@ -56,23 +58,26 @@ class FileServerListener(socket:Socket, serverInterface:FileServerInterface) ext
 	def error(code:Int, description:String){
 		sOut.println("ERROR_CODE: " + code
 						+ "\nERROR_DESCRIPTION: " + description)
+		sOut.flush()
 	}
 	
-	def base(message:String){
+	def handleHelo(message:String){
 		sOut.println(message + "\nIP:" + IPaddress 
 								+"\nPort:" + serverInterface.getPort)
 		sOut.flush()
 	}
 	
-	def disconnect() {
-		message = sIn.readLine()
-		
+	def hadnleDisconnect() {
+		sOut.println("DISCONNECTED FROM DIRECTORY SERVER"
+						+ "\nIP:" + IPaddress 
+						+ "\nPort:" + serverInterface.getPort)
+		sOut.flush()				
 		sOut.close
 		sIn.close
-		//tempClient.socket.close
+		socket.close
 	}
 	
-	def killService(){
+	def handleKill(){
 		serverInterface.shutdown()
 		socket.close()
 	}
