@@ -31,7 +31,7 @@ object Client {
 			//println("sent KILL_SERVICE")
 			
 			///////////////////TEST3/////////////////////
-			sOut.println("DISCONNECT")
+			/*sOut.println("DISCONNECT")
 			sOut.flush()
 			println("sent DISCONNECT")
 			
@@ -41,7 +41,7 @@ object Client {
 			println("Received message: " + message)
 			message = sIn.readLine()
 			println("Received message: " + message)
-			
+			*/
 			
 			/*If a user has a write permission with the directory of D:\Test, then:
 			He can create a Newfolder in Test, but he cannot rename it.
