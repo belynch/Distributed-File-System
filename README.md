@@ -1,23 +1,17 @@
 # Distributed-File-System
 
-Overview
----------
 
+###Protocol
+___
 
-Features
----------
+####CLIENT - DIRECTORY SERVER
 
-
-Protocol
----------
-
-###CLIENT <-> DIRECTORY SERVER
-
-read request
+*Read request*
 ```
 READ: [String]\n
 ```
-read response
+
+*Read response*
 ```
 SERVER IP: [String]\n
 SERVER PORT: [Int]\n
@@ -26,11 +20,12 @@ FILE UID: [Int]\n
 Location = empty string if invalid read request
 
 
-write request
+*Write request*
 ```
 WRITE: [String]\n
 ```
-write response
+
+*Write response*
 ```
 SERVER IP: [String]\n
 SERVER PORT: [Int]\n
@@ -39,37 +34,38 @@ FILE UID: [Int]\n
 Location = empty string if invalid write request
 
 
-list request
+*List request*
 ```
 LS: [String]
 ```
 
-list response
+*List response*
 ```
 NO. ITEMS: [Int]\n
 ITEM.1: [String]\n
 
 ITEM.N: [String]\n
 ```
+___
+####CLIENT - FILE SERVER
 
-###CLIENT <-> FILE SERVER
 
-####LOCK SERVICE
-
-lock request
+*Lock request*
 ```
 LOCK: [String]
 ```
-lock response
+
+*Lock response*
 ```
 SUCCESS: [Bool]
 ```
 
-unlock request
+*Unlock request*
 ```
 UNLOCK: [String]
 ```
-unlock response
+
+Unlock response
 ```
 SUCCESS: [Bool]
 ```
