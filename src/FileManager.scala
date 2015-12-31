@@ -30,12 +30,13 @@ class FileManager(){
 		files = updatedFiles
 	}
 	
+
 	/**
-	 * Searches the files list for a given id and returns the
-	 * entry if it exists.
-	 * ie. this.searchEntries(2)
+	 * Searches the files for a given id and returns the
+	 * file entry if it exists.
+	 * ie. this.getEntry(2)
 	**/
-	def searchEntries(id : Int) : FileEntry = {
+	def getEntry(id : Int) : FileEntry = {
 		val entry : FileEntry = null
 		for(f <- files){
 			if(f.id == id){
@@ -43,6 +44,27 @@ class FileManager(){
 			} 
 		}
 		return entry
+	}
+	
+	/**
+	 * Identifies if a sspecified file exists
+	**/
+	def entryExists(id : Int) : Boolean = {
+		if(!isEmpty()){
+			for(f <- files){
+				if(f.id == id){
+					return true
+				} 
+			}
+		}
+		return false
+	}
+	
+	/**
+	 * Identifies if the list of files is empty or not
+	**/
+	def isEmpty() : Boolean = {
+		return files.isEmpty
 	}
 	
 }

@@ -1,4 +1,4 @@
-import java.io.{BufferedReader, InputStreamReader, PrintWriter, BufferedWriter, OutputStreamWriter}
+import java.io.{BufferedReader, InputStreamReader, PrintWriter, BufferedWriter, OutputStreamWriter, PrintStream, ByteArrayInputStream}
 import java.net.{Socket, ServerSocket, SocketException}
 import scala.io.BufferedSource
 
@@ -9,11 +9,14 @@ import scala.io.BufferedSource
 **/
 class DirectoryServerListener(socket:Socket, serverInterface:DirectoryServerInterface) extends Runnable {
 
+	//val sOut = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8")))
+	
 	var sIn = new BufferedReader(new InputStreamReader(socket.getInputStream))
-	val sOut = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8")))
+	var sOut : PrintStream = new PrintStream(socket.getOutputStream())
+	
 	var message = ""
 	val IPaddress = socket.getLocalAddress().toString().drop(1)
-
+	
 	/**
 	 * Receives messages over a given socket and handles responses.
 	**/

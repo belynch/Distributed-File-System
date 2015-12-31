@@ -20,7 +20,8 @@ trait DirectoryServerInterface {
 
 /**
  *
- * Object which encapsulates a multithreaded TCP server and worker class.
+ * Object which implements a Directory Server. A directory Server contains a 
+ * DreictoryManager used in the management of the directory space
  *
 **/
 object DirectoryServer extends DirectoryServerInterface {

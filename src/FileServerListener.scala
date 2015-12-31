@@ -1,4 +1,4 @@
-import java.io.{BufferedReader, InputStreamReader, PrintWriter, BufferedWriter, OutputStreamWriter}
+import java.io.{BufferedReader, InputStreamReader, PrintStream}
 import java.net.{Socket, ServerSocket, SocketException}
 import scala.io.BufferedSource
 
@@ -9,8 +9,11 @@ import scala.io.BufferedSource
 **/
 class FileServerListener(socket:Socket, serverInterface:FileServerInterface) extends Runnable {
 
+	//val sOut = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8")))
+	
 	var sIn = new BufferedReader(new InputStreamReader(socket.getInputStream))
-	val sOut = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8")))
+	var sOut : PrintStream = new PrintStream(socket.getOutputStream())
+	
 	var message = ""
 	val IPaddress = socket.getLocalAddress().toString().drop(1)
 
@@ -30,19 +33,21 @@ class FileServerListener(socket:Socket, serverInterface:FileServerInterface) ext
 					if(message.startsWith("HELO")){
 						handleHelo(message)
 					}
+					else if(message.startsWith("READ")){
+						handleRead(message)
+					}
+					else if(message.startsWith("MODIFY")){
+						handleModify(message)
+					}
+					else if(message.startsWith("WRITE")){
+						handleWrite(message)
+					}
 					else if(message.startsWith("DISCONNECT")){
 						hadnleDisconnect()
 					}
 					else if(message == "KILL_SERVICE"){
 						handleKill()
-					}	
-					
-					//receive replication messages
-					
-					
-					//receive client messages
-					
-					
+					}					
 					else{
 						println("unhandled message type")
 					}
@@ -65,6 +70,39 @@ class FileServerListener(socket:Socket, serverInterface:FileServerInterface) ext
 		sOut.println(message + "\nIP:" + IPaddress 
 								+"\nPort:" + serverInterface.getPort)
 		sOut.flush()
+	}
+	
+	/**
+	 *
+	 * Handler for read command
+	 *
+	**/
+	def handleRead(message:String){
+		val fileUID = message.split(":")(1)
+		//send file
+		
+	}
+	
+	/**
+	 *
+	 * Handler for modify command
+	 *
+	**/
+	def handleModify(message:String){
+		val fileUID = message.split(":")(1)
+		//send file and wait to receive modified file
+		
+	}
+	
+	/**
+	 *
+	 * Handler for write command
+	 *
+	**/
+	def handleWrite(message:String){
+		val fileUID = message.split(":")(1)
+		//receive file and add entry
+		
 	}
 	
 	def hadnleDisconnect() {

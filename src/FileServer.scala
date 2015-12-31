@@ -11,7 +11,8 @@ trait FileServerInterface {
 
 /**
  *
- * Object which encapsulates a multithreaded TCP server and worker class.
+ * Object which implements a File Server. A file Server contains a 
+ * FileManager used to manage the server's files
  *
 **/
 object FileServer extends FileServerInterface {
@@ -22,7 +23,7 @@ object FileServer extends FileServerInterface {
 	
 	/**
 	 *
-	 * Main function which creates and runs a server instance on a given port.
+	 * Main function which creates and runs the file server on a given port.
 	 *
 	**/
 	def main (args: Array[String]){
