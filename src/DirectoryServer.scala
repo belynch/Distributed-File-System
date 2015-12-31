@@ -8,6 +8,13 @@ import scala.io.BufferedSource
 //of files with specific names located on specific file servers.
 trait DirectoryServerInterface {
   def getPort: String
+  def writeFile(file : String): Boolean
+  def fileExists(file : String): Boolean
+  def getCurrentUID(): Int
+  def getFileUID(file : String): Int
+  def getFileServerIP: String
+  def getFileServerPort: Int
+
   def shutdown(): Unit
 }
 
@@ -21,6 +28,10 @@ object DirectoryServer extends DirectoryServerInterface {
 	val pool = java.util.concurrent.Executors.newFixedThreadPool(20)
 	var serverSocket: ServerSocket = null
 	var port: Int = 0
+	val directory : DirectoryManager =  new DirectoryManager()
+	
+	val fileServerIP : String = "localhost"
+	val fileServerPort : Int = 8000
 	
 	/**
 	 *
@@ -64,6 +75,56 @@ object DirectoryServer extends DirectoryServerInterface {
 	**/
 	def getPort: String = {
 		return serverSocket.getLocalPort.toString;
+	}
+	
+	/**
+	 *
+	 * Adds a new file entry to the servers directory manager if the file path
+	 * doesn't already exist
+	 *
+	**/
+	def writeFile(file : String): Boolean = {
+		
+		var writeSuccess : Boolean = false;
+		//extract file name and parent directory from path
+		var index: Int = file.lastIndexOf('/')
+		var split = file.splitAt(index + 1)
+		val parent: String = split._1
+		val name: String = split._2
+		
+		//if the file doesn't exist, add it
+		if(!fileExists(file)) {
+			writeSuccess = true
+			println("parent: " + parent 
+						+ "\nFileName: " + name)
+			directory.addEntry(parent, name, fileServerIP, fileServerPort)
+		}
+			
+		return writeSuccess
+	}
+	
+	def fileExists(file : String): Boolean = {
+		return directory.entryExists(file)
+	}
+	
+	def getCurrentUID(): Int = {
+		return directory.getId()
+	}
+	
+	def getFileUID(file : String): Int = {
+		var UID : Int = -1
+		if(fileExists(file)){
+			UID = directory.getUID(file)
+		}
+		return UID
+	}
+
+	def getFileServerIP: String = {
+		return fileServerIP
+	}
+	
+	def getFileServerPort: Int = {
+		return fileServerPort
 	}
 	
 	/**

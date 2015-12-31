@@ -7,7 +7,7 @@
 class DirectoryEntry(parent: String, name: String, host: String, port : Int, id : Int){
 	
 	val relative_distinguished_name : String = name
-	var distinguished_name : String = parent + "/" + name
+	var distinguished_name : String = parent + name
 	var parent_directory : String = parent
 	
 	var host_name : String = host

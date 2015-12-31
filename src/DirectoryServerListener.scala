@@ -29,6 +29,15 @@ class DirectoryServerListener(socket:Socket, serverInterface:DirectoryServerInte
 					if(message.startsWith("HELO")){
 						handleHelo(message)
 					}
+					else if(message.startsWith("READ")){
+						handleRead(message)
+					}
+					else if(message.startsWith("MODIFY")){
+						handleModify(message)
+					}
+					else if(message.startsWith("WRITE")){
+						handleWrite(message)
+					}
 					else if(message.startsWith("DISCONNECT")){
 						hadnleDisconnect()
 					}
@@ -46,7 +55,6 @@ class DirectoryServerListener(socket:Socket, serverInterface:DirectoryServerInte
 		}
 	}
 
-	
 	def error(code:Int, description:String){
 		sOut.println("ERROR_CODE: " + code
 						+ "\nERROR_DESCRIPTION: " + description)
@@ -56,6 +64,75 @@ class DirectoryServerListener(socket:Socket, serverInterface:DirectoryServerInte
 		sOut.println(message + "\nIP:" + IPaddress 
 								+"\nPort:" + serverInterface.getPort)
 		sOut.flush()
+	}
+	
+	/**
+	 *
+	 * Handler for read command
+	 *
+	**/
+	def handleRead(message:String){
+		val file = message.split(":")(1)
+		
+		if(serverInterface.fileExists(file)) {
+			sOut.println("SERVER IP:" + serverInterface.getFileServerIP 
+							+ "\nSERVER Port:" + serverInterface.getFileServerPort
+							+ "\nFILE UID:" + serverInterface.getFileUID(file))
+			sOut.flush()
+		}
+		else{
+			//invalid read
+			sOut.println("SERVER IP:" + "" 
+							+ "\nSERVER Port:" + ""
+							+ "\nFILE UID:" + "")
+			sOut.flush()
+		}
+	}
+	
+	/**
+	 *
+	 * Handler for modify command
+	 *
+	**/
+	def handleModify(message:String){
+		val file = message.split(":")(1)
+		
+		if(serverInterface.fileExists(file)) {
+			sOut.println("SERVER IP:" + serverInterface.getFileServerIP 
+							+ "\nSERVER Port:" + serverInterface.getFileServerPort
+							+ "\nFILE UID:" + serverInterface.getFileUID(file))
+			sOut.flush()
+		}
+		else{
+			//invalid modify
+			sOut.println("SERVER IP:" + ""
+							+ "\nSERVER Port:" + ""
+							+ "\nFILE UID:" + "")
+			sOut.flush()
+		}
+	}
+	
+	/**
+	 *
+	 * Handler for write command
+	 *
+	**/
+	def handleWrite(message:String){
+		val file = message.split(":")(1)
+		
+		if(serverInterface.writeFile(file)){
+			sOut.println("SERVER IP:" + serverInterface.getFileServerIP 
+							+ "\nSERVER Port:" + serverInterface.getFileServerPort
+							+ "\nFILE UID:" + serverInterface.getCurrentUID())
+			sOut.flush()
+		}
+		else{
+			//invalid write
+			sOut.println("SERVER IP:" + "" 
+							+ "\nSERVER Port:" + ""
+							+ "\nFILE UID:" + "")
+			sOut.flush()
+		}
 	}
 	
 	def hadnleDisconnect() {

@@ -4,7 +4,7 @@ import java.net.Socket
 object Client {
 
 	val host = "localhost"
-	val port = 8000
+	val port = 7000
 	var message: String = ""
 	
 	def main(args: Array[String]) {
@@ -22,6 +22,10 @@ object Client {
 			sOut.flush()
 			println("sent HELO")
 			
+			message = sIn.readLine()
+			println("Received message: " + message)
+			message = sIn.readLine()
+			println("Received message: " + message)
 			message = sIn.readLine()
 			println("Received message: " + message)
 			
@@ -42,49 +46,105 @@ object Client {
 			message = sIn.readLine()
 			println("Received message: " + message)
 			*/
-			
-			/*If a user has a write permission with the directory of D:\Test, then:
-			He can create a Newfolder in Test, but he cannot rename it.
-			He can create a NewFile.txt in Test, but he cannot rename it too.
-			He can open NewFile.txt and write/append data to it
-			He cannot delete NewFolder and NewFile in Test
-			
-			If a user has a modify permission with the directory of D:\Test, then:
-			He can create a Newfolder in Test, and rename it anytime.
-			He can create a NewFile.txt in Test, and rename it anytime.
-			He can open NewFile.txt and write/append data to it
-			He can delete NewFolder and NewFile in Test*/
+	
 			///////////////////TEST4/////////////////////
 			//WRITE TEST
 			//query directory server
-		    sOut.println("WRITE:")
-			
+			println("\n")
+		    sOut.println("WRITE:root/subroot/file.txt")
+			sOut.flush()
 			//receive file location
-			
-			
-			//request file
-			
-			
-			//open file
-			
-			
-			
-			///////////////////TEST5/////////////////////
-			//WRITE TEST
+			message = sIn.readLine()
+			println("Received message: " + message)
+			message = sIn.readLine()
+			println("Received message: " + message)
+			message = sIn.readLine()
+			println("Received message: " + message)
+
 			//query directory server
-		   
-			
+			println("\n")
+		    sOut.println("WRITE:root/subroot/file2.txt")
+			sOut.flush()
 			//receive file location
+			message = sIn.readLine()
+			println("Received message: " + message)
+			message = sIn.readLine()
+			println("Received message: " + message)
+			message = sIn.readLine()
+			println("Received message: " + message)
 			
+			//query directory server
+			println("\n")
+		    sOut.println("WRITE:root2/subroot/file.txt")
+			sOut.flush()
+			//receive file location
+			message = sIn.readLine()
+			println("Received message: " + message)
+			message = sIn.readLine()
+			println("Received message: " + message)
+			message = sIn.readLine()
+			println("Received message: " + message)
 			
-			//request file
+			//query directory server
+			println("\n")
+		    sOut.println("READ:root/subroot/file2.txt")
+			sOut.flush()
+			//receive file location
+			message = sIn.readLine()
+			println("Received message: " + message)
+			message = sIn.readLine()
+			println("Received message: " + message)
+			message = sIn.readLine()
+			println("Received message: " + message)
 			
+			//query directory server
+			println("\n")
+		    sOut.println("READ:root/subroot4/file.txt")
+			sOut.flush()
+			//receive file location
+			message = sIn.readLine()
+			println("Received message: " + message)
+			message = sIn.readLine()
+			println("Received message: " + message)
+			message = sIn.readLine()
+			println("Received message: " + message)
 			
-			//modify file
+			//query directory server
+			println("\n")
+		    sOut.println("WRITE:root2/subroot/file.txt")
+			sOut.flush()
+			//receive file location
+			message = sIn.readLine()
+			println("Received message: " + message)
+			message = sIn.readLine()
+			println("Received message: " + message)
+			message = sIn.readLine()
+			println("Received message: " + message)
 			
+			//query directory server
+			println("\n")
+		    sOut.println("MODIFY:root2/subroot/file.txt")
+			sOut.flush()
+			//receive file location
+			message = sIn.readLine()
+			println("Received message: " + message)
+			message = sIn.readLine()
+			println("Received message: " + message)
+			message = sIn.readLine()
+			println("Received message: " + message)
 			
-			//upload file
-		
+			//query directory server
+			println("\n")
+		    sOut.println("MODIFY:root20/subroot/file.txt")
+			sOut.flush()
+			//receive file location
+			message = sIn.readLine()
+			println("Received message: " + message)
+			message = sIn.readLine()
+			println("Received message: " + message)
+			message = sIn.readLine()
+			println("Received message: " + message)
+			
 			socket.close()
 		}
 		catch{

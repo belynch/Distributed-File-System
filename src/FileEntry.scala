@@ -9,7 +9,7 @@ class FileEntry(file_name : File, unique_identifier : Int){
 	
 	var file : File = file_name
 	val id : Int = unique_identifier
-	var locked : Bool = false
+	var locked : Boolean = false
 	
 	
 	def lock(){

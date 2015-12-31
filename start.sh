@@ -1,3 +1,3 @@
 #!/bin/bash
 cd out
-scala FileServer $1 
+scala DirectoryServer $1 
