@@ -96,8 +96,6 @@ object DirectoryServer extends DirectoryServerInterface {
 		//if the file doesn't exist, add it
 		if(!fileExists(file)) {
 			writeSuccess = true
-			println("parent: " + parent 
-						+ "\nFileName: " + name)
 			directory.addEntry(parent, name, fileServerIP, fileServerPort)
 		}
 			

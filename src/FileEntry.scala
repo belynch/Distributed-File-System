@@ -1,4 +1,5 @@
 import java.io.{File}
+import scala.io.{Source}
 
 /**
  *
@@ -20,4 +21,10 @@ class FileEntry(file_name : File, unique_identifier : Int){
 		locked = false
 	}
 	
+	/**
+	 * Converts the file contents to string
+	**/
+	def fileToList(): List[String] ={
+      return Source.fromFile(file.getPath()).getLines().toList
+  }
 }

@@ -1,5 +1,7 @@
-import java.io.{BufferedReader, InputStreamReader, PrintStream}
+import java.io.{BufferedReader, InputStreamReader, PrintStream, PrintWriter}
 import java.net.Socket
+import java.io.{File}
+import scala.io.Source
 
 class ClientProxy(){
 	
@@ -66,9 +68,28 @@ class ClientProxy(){
 			sOut.println("READ:" + fileUID)
 			sOut.flush()
 			
-			//receive file
+			//receive file name
 			message = sIn.readLine()
 			println(message)
+			
+			val receivedFile = new File(file)
+			val writer = new PrintWriter(receivedFile)
+			
+			//receive file contents line by line, and write each line to a new file
+			println("receiving file")
+			
+			while(message != "END;"){
+			  message = sIn.readLine()
+			  writer.write(message + "\n")
+			  writer.flush()
+			  println(message)
+			}
+			writer.close()
+		
+			
+			//message = sIn.readLine()
+			//println(message)
+			
 			
 			//terminate connection with file server
 			sOut.println("DISCONNECT")
@@ -88,8 +109,10 @@ class ClientProxy(){
 	
 	}
 	
-	def write(file : String){
-		
+	def write(path : String){
+		//convert file to list of strings for transmission
+		val lines = Source.fromFile(path).getLines().toList
+
 		//setup
 		println("\nConnecting to directory server")
 		connect(directoryIP, directoryPort)
@@ -101,15 +124,15 @@ class ClientProxy(){
 		var message : String = ""
 		
 		//send WRITE command to directory server
-		sOut.println("WRITE:" + file)
+		sOut.println("WRITE:" + path)
 		sOut.flush()
 		
 		//receive file location from directory server
 		message = sIn.readLine()
 		//if the requested file does no exist, the server IP field will be empty
-		var temp = message.split(":")
+		var temp = message.split(":") //messages of the form   NAME:DATA
 		if(temp.length > 1){
-			fileServerIP = temp(1)
+			fileServerIP = temp(1) //
 			fileServerIP = message.split(":")(1)
 			message = sIn.readLine()
 			fileServerport = message.split(":")(1).toInt
@@ -130,11 +153,16 @@ class ClientProxy(){
 			sOut = new PrintStream(socket.getOutputStream())
 		
 			//send file to file server
+			println("sending file contents")
 			sOut.println("WRITE:" + fileUID)
-			sOut.println("THE FILE")
+			for(l <- lines){
+				sOut.println(l)
+				println(l)
+			} 
+			sOut.println("END;")
 			sOut.flush()
 			
-			//receive response
+			//receive response: success/failure
 			message = sIn.readLine()
 			println(message)
 			

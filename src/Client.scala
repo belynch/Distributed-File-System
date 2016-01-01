@@ -13,10 +13,8 @@ object Client {
 	}
 	
 	def run(){
-		proxy.write("root/subroot/test.txt")
-		proxy.write("root/subroot2/test.txt")
+		proxy.write("../TestFiles/writeTest.txt")
 		
-		proxy.read("root/subroot2/test.txt")
-		proxy.read("root23/test.txt")
+		proxy.read("../TestFiles/writeTest.txt")
 	}
 }

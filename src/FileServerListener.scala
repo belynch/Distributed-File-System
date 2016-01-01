@@ -1,6 +1,6 @@
-import java.io.{BufferedReader, InputStreamReader, PrintStream}
+import java.io.{BufferedReader, InputStreamReader, PrintStream, PrintWriter}
 import java.net.{Socket, ServerSocket, SocketException}
-import scala.io.BufferedSource
+import scala.io.{Source}
 import java.io.{File}
 
 /**
@@ -66,6 +66,11 @@ class FileServerListener(socket:Socket, serverInterface:FileServerInterface) ext
 		sOut.flush()
 	}
 	
+	/**
+	 *
+	 * Handler for helo command
+	 *
+	**/
 	def handleHelo(message:String){
 		sOut.println(message + "\nIP:" + IPaddress 
 								+"\nPort:" + serverInterface.getPort)
@@ -79,16 +84,25 @@ class FileServerListener(socket:Socket, serverInterface:FileServerInterface) ext
 	**/
 	def handleRead(message:String){
 		val fileUID = message.split(":")(1)
-		//send file
+		
 
 		if(serverInterface.fileExists(fileUID.toInt)){
-			sOut.println("READ SUCCESS")
+			//send file
+			val lines = serverInterface.getFile(fileUID.toInt).fileToList()
+			
+			println("sending file contents")
+			sOut.println("FILE:" + fileUID)
+			for(l <- lines){
+				sOut.println(l)
+				println(l)
+			} 
+			sOut.println("END;")
 			sOut.flush()
+			println("READ SUCCESS")
+			
 		}
 		else{
 			println("READ ERROR: file UID: " + fileUID + " not found")
-			sOut.println("READ FAILED: " + fileUID)
-			sOut.flush()
 		}
 	}
 	
@@ -116,13 +130,26 @@ class FileServerListener(socket:Socket, serverInterface:FileServerInterface) ext
 	 *
 	**/
 	def handleWrite(message:String){
+		//receive file UID
 		val fileUID = message.split(":")(1)
-		//receive file and add entry
-
-		val test : File = new File("test/test.txt")
 		
+		val file = new File(fileUID + ".txt")
+		val writer = new PrintWriter(file)
+		
+		//receive file contents line by line, and write each line to a new file
+		var input = ""
+		println("receiving file")
+		
+		while(input != "END;"){
+          input = sIn.readLine()
+		  writer.write(input + "\n")
+		  writer.flush()
+		  //println(input)
+        }
+		writer.close()
+				
 		if(!serverInterface.fileExists(fileUID.toInt)){
-			serverInterface.writeFile(test, fileUID.toInt)
+			serverInterface.writeFile(file, fileUID.toInt)
 			sOut.println("WRITE SUCCESS: " + fileUID)
 			sOut.flush()
 		}
@@ -132,6 +159,11 @@ class FileServerListener(socket:Socket, serverInterface:FileServerInterface) ext
 		}
 	}
 	
+	/**
+	 *
+	 * Handler for disconnect command
+	 *
+	**/
 	def hadnleDisconnect() {
 		sOut.println("DISCONNECTED FROM DIRECTORY SERVER"
 						+ "\nIP:" + IPaddress 
@@ -142,9 +174,31 @@ class FileServerListener(socket:Socket, serverInterface:FileServerInterface) ext
 		socket.close
 	}
 	
+	/**
+	 *
+	 * Handler for kill service command
+	 *
+	**/
 	def handleKill(){
 		serverInterface.shutdown()
 		socket.close()
 	}
 	
+	/**
+	 *
+	 * Converts a list of strings to a file
+	 *
+	**/
+	def listToFile(fileName : String, input : List[String]){
+		val file = new File(fileName)
+		val writer = new PrintWriter(file)
+		for (line <- input) {
+		  println("Contents: " + line)
+		  if(line != ""){
+			writer.write(line + "\n")
+			writer.flush()
+		  }
+		}
+		writer.close()
+	}
 }

@@ -27,7 +27,7 @@ class DirectoryServerListener(socket:Socket, serverInterface:DirectoryServerInte
 				if(socket.getInputStream().available() > 0){
 					message = ""
 					message = sIn.readLine()
-					println("Received message: " + message)
+					println("\nReceived message: " + message)
 					
 					if(message.startsWith("HELO")){
 						handleHelo(message)
@@ -82,6 +82,7 @@ class DirectoryServerListener(socket:Socket, serverInterface:DirectoryServerInte
 							+ "\nSERVER Port:" + serverInterface.getFileServerPort
 							+ "\nFILE UID:" + serverInterface.getFileUID(file))
 			sOut.flush()
+			println("READ::UID: " + serverInterface.getFileUID(file))
 		}
 		else{
 			//invalid read
@@ -126,8 +127,9 @@ class DirectoryServerListener(socket:Socket, serverInterface:DirectoryServerInte
 		if(serverInterface.writeFile(file)){
 			sOut.println("SERVER IP:" + serverInterface.getFileServerIP 
 							+ "\nSERVER Port:" + serverInterface.getFileServerPort
-							+ "\nFILE UID:" + serverInterface.getCurrentUID())
+							+ "\nFILE UID:" + serverInterface.getFileUID(file))
 			sOut.flush()
+			println("WRITE::UID: " + serverInterface.getFileUID(file))
 		}
 		else{
 			//invalid write

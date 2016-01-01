@@ -9,6 +9,7 @@ trait FileServerInterface {
   def getPort: String
   def writeFile(file: File, UID : Int)
   def fileExists(UID : Int): Boolean
+  def getFile(UID: Int): FileEntry
   def shutdown(): Unit
 }
 
@@ -78,6 +79,10 @@ object FileServer extends FileServerInterface {
 	
 	def fileExists(UID : Int): Boolean = {
 		return fileManager.entryExists(UID)
+	}
+	
+	def getFile(UID: Int): FileEntry = {
+		return fileManager.getEntry(UID)
 	}
 	
 	/**
