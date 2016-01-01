@@ -1,6 +1,7 @@
 import java.io.{BufferedReader, InputStreamReader, PrintStream}
 import java.net.{Socket, ServerSocket, SocketException}
 import scala.io.BufferedSource
+import java.io.{File}
 
 /**
  *
@@ -16,8 +17,7 @@ class FileServerListener(socket:Socket, serverInterface:FileServerInterface) ext
 	
 	var message = ""
 	val IPaddress = socket.getLocalAddress().toString().drop(1)
-
-
+	
 	/**
 	 * Receives messages over a given socket and handles responses.
 	**/
@@ -28,7 +28,7 @@ class FileServerListener(socket:Socket, serverInterface:FileServerInterface) ext
 				if(socket.getInputStream().available() > 0){
 					message = ""
 					message = sIn.readLine()
-					println("Received message: " + message)
+					println("\nReceived message: " + message)
 					
 					if(message.startsWith("HELO")){
 						handleHelo(message)
@@ -80,7 +80,16 @@ class FileServerListener(socket:Socket, serverInterface:FileServerInterface) ext
 	def handleRead(message:String){
 		val fileUID = message.split(":")(1)
 		//send file
-		
+
+		if(serverInterface.fileExists(fileUID.toInt)){
+			sOut.println("READ SUCCESS")
+			sOut.flush()
+		}
+		else{
+			println("READ ERROR: file UID: " + fileUID + " not found")
+			sOut.println("READ FAILED: " + fileUID)
+			sOut.flush()
+		}
 	}
 	
 	/**
@@ -92,6 +101,13 @@ class FileServerListener(socket:Socket, serverInterface:FileServerInterface) ext
 		val fileUID = message.split(":")(1)
 		//send file and wait to receive modified file
 		
+		if(serverInterface.fileExists(fileUID.toInt)){
+			sOut.println("MODIFY SUCESS")
+			sOut.flush()
+		}
+		else{
+			println("MODIFY ERROR: file UID: " + fileUID + " not found")
+		}	
 	}
 	
 	/**
@@ -102,7 +118,18 @@ class FileServerListener(socket:Socket, serverInterface:FileServerInterface) ext
 	def handleWrite(message:String){
 		val fileUID = message.split(":")(1)
 		//receive file and add entry
+
+		val test : File = new File("test/test.txt")
 		
+		if(!serverInterface.fileExists(fileUID.toInt)){
+			serverInterface.writeFile(test, fileUID.toInt)
+			sOut.println("WRITE SUCCESS: " + fileUID)
+			sOut.flush()
+		}
+		else{
+			println("WRITE ERROR: file UID already exists")
+			sOut.println("WRITE FAILED: " + fileUID)
+		}
 	}
 	
 	def hadnleDisconnect() {

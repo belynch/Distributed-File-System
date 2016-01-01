@@ -1,4 +1,4 @@
-import java.io.{File, FileOutputStream}
+import java.io.{File}
 
 /**
  *
@@ -13,7 +13,7 @@ class FileManager(){
 	 * Adds a new file entry to the files list
 	**/
 	def addEntry(file: File, id : Int){
-		var fileEntry = new FileEntry(file, id) :: files
+		files = new FileEntry(file, id) :: files
 	}
 	
 	/**

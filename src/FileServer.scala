@@ -2,10 +2,13 @@ import java.io.{BufferedReader, InputStreamReader, PrintWriter, BufferedWriter, 
 import java.net.{Socket, ServerSocket, SocketException}
 import java.util.concurrent.{Executors}
 import scala.io.BufferedSource
+import java.io.{File}
 
 
 trait FileServerInterface {
   def getPort: String
+  def writeFile(file: File, UID : Int)
+  def fileExists(UID : Int): Boolean
   def shutdown(): Unit
 }
 
@@ -21,6 +24,8 @@ object FileServer extends FileServerInterface {
 	var serverSocket: ServerSocket = null
 	var port: Int = 0
 	
+	val fileManager : FileManager = new FileManager()
+
 	/**
 	 *
 	 * Main function which creates and runs the file server on a given port.
@@ -64,6 +69,15 @@ object FileServer extends FileServerInterface {
 	**/
 	def getPort: String = {
 		return serverSocket.getLocalPort.toString;
+	}
+	
+	def writeFile(file : File, UID : Int){
+		println("UID: " + UID)
+		fileManager.addEntry(file, UID)	
+	}
+	
+	def fileExists(UID : Int): Boolean = {
+		return fileManager.entryExists(UID)
 	}
 	
 	/**
