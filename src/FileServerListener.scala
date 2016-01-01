@@ -113,11 +113,44 @@ class FileServerListener(socket:Socket, serverInterface:FileServerInterface) ext
 	**/
 	def handleModify(message:String){
 		val fileUID = message.split(":")(1)
-		//send file and wait to receive modified file
-		
+		 
 		if(serverInterface.fileExists(fileUID.toInt)){
-			sOut.println("MODIFY SUCESS")
+			//send file
+			val lines = serverInterface.getFile(fileUID.toInt).fileToList()
+			
+			println("sending file contents")
+			sOut.println("FILE:" + fileUID)
+			for(l <- lines){
+				sOut.println(l)
+				println(l)
+			} 
+			sOut.println("EOF")
 			sOut.flush()
+			println("SEND SUCCESS")
+			
+			//and wait to receive modified file
+			val modifiedFile = new File(fileUID + ".txt")
+			val writer = new PrintWriter(modifiedFile)
+			
+			//receive modified file contents line by line, and write each line to a new file
+			var input = ""
+			println("receiving file")
+			
+			input = sIn.readLine()
+			while(input != "EOF"){
+			  writer.write(input + "\n")
+			  writer.flush()
+			  println(input)
+			  input = sIn.readLine()
+			}
+			writer.close()
+			
+			//send success response
+			sOut.println("MODIFY SUCCESSFUL")
+			sOut.flush()
+			
+			//overwrite file entry with modified file
+			serverInterface.getFile(fileUID.toInt).setFile(modifiedFile)
 		}
 		else{
 			println("MODIFY ERROR: file UID: " + fileUID + " not found")

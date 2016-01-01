@@ -24,9 +24,20 @@ class ClientProxy(){
 		
 	}
 	
+	def disconnect(){
+		sOut.println("DISCONNECT")
+		sOut.flush()
+		socket.close()
+	}
+	
+	/**
+	 *
+	 *
+	**/
 	def read(file : String){
 		//setup
-		println("\nConnecting to directory server")
+		println("\nREAD")
+		println("Connecting to directory server")
 		connect(directoryIP, directoryPort)
 
 		var fileServerIP : String = ""
@@ -43,8 +54,8 @@ class ClientProxy(){
 		message = sIn.readLine()
 		//if the requested file does no exist, the server IP field will be empty and we will not connect
 		//to the file server
-		var temp = message.split(":")
-		if(temp.length > 1){
+		var temp = message.split(":") //messages of the form   NAME:DATA
+		if(temp.length > 1){ //length will be 2 if data field is not empty
 			fileServerIP = temp(1)
 			message = sIn.readLine()
 			fileServerport = message.split(":")(1).toInt
@@ -54,16 +65,12 @@ class ClientProxy(){
 			println("IP: " + fileServerIP + "\nPort: " + fileServerport + "\nUID: " + fileUID)
 		
 			//terminate connection with directory server
-			sOut.println("DISCONNECT")
-			sOut.flush()
-			socket.close()
+			disconnect()
 			
 			//setup connection with file server
 			println("Connecting to file server")
-			socket = new Socket(fileServerIP, fileServerport)
-			sIn = new BufferedReader(new InputStreamReader(socket.getInputStream))
-			sOut = new PrintStream(socket.getOutputStream())
-		
+			connect(fileServerIP,fileServerport)
+			
 			//request file from file server
 			sOut.println("READ:" + fileUID)
 			sOut.flush()
@@ -76,45 +83,130 @@ class ClientProxy(){
 			val writer = new PrintWriter(receivedFile)
 			
 			//receive file contents line by line, and write each line to a new file
-			println("receiving file")
+			println("receiving file contents")
 			
+			message = sIn.readLine()
 			while(message != "END;"){
-			  message = sIn.readLine()
 			  writer.write(message + "\n")
 			  writer.flush()
 			  println(message)
+			  message = sIn.readLine()
 			}
-			writer.close()
-		
-			
-			//message = sIn.readLine()
-			//println(message)
-			
+			writer.close()	
 			
 			//terminate connection with file server
-			sOut.println("DISCONNECT")
-			sOut.flush()
-			socket.close()
+			disconnect()
 		}
 		else{
 			println("invalid file")
-			sOut.println("DISCONNECT")
-			sOut.flush()
-			socket.close()
-		}
-		
+			disconnect()
+		}	
 	}
 	
+	/**
+	 *
+	 *
+	**/
 	def modify(file : String){
+		//setup
+		println("\nMODIFY")
+		println("Connecting to directory server")
+		connect(directoryIP, directoryPort)
+
+		var fileServerIP : String = ""
+		var fileServerport : Int = -1
+		var fileUID : Int = -1
+		
+		var message : String = ""
+		
+		//send MODIFY command to directory server
+		sOut.println("MODIFY:" + file)
+		sOut.flush()
+		
+		//receive file location from directory server
+		message = sIn.readLine()
+		//if the requested file does no exist, the server IP field will be empty and we will not connect
+		//to the file server
+		var temp = message.split(":") //messages of the form   NAME:DATA
+		if(temp.length > 1){ //length will be 2 if data field is not empty
+			fileServerIP = temp(1)
+			message = sIn.readLine()
+			fileServerport = message.split(":")(1).toInt
+			message = sIn.readLine()
+			fileUID = message.split(":")(1).toInt
+			
+			println("IP: " + fileServerIP + "\nPort: " + fileServerport + "\nUID: " + fileUID)
+		
+			//terminate connection with directory server
+			disconnect()
+			
+			//setup connection with file server
+			println("Connecting to file server")
+			connect(fileServerIP,fileServerport)
+		
+			//request file from file server
+			sOut.println("MODIFY:" + fileUID)
+			sOut.flush()
+			
+			//receive file name
+			message = sIn.readLine()
+			println(message)
+			
+			val receivedFile = new File(file)
+			val writer = new PrintWriter(receivedFile)
+			
+			//receive file contents line by line, and write each line to a new file
+			println("receiving file contents")
+			
+			message = sIn.readLine()
+			while(message != "END;"){
+			  writer.write(message + "\n")
+			  writer.flush()
+			  println(message)
+			  message = sIn.readLine()
+			}
+			writer.close()	
+			
+			////////////////////
+			// Modify file
+			////////////////////
+			
+			//send file back
+			val lines = Source.fromFile(file).getLines().toList
+			//send file to file server
+			println("sending file contents")
+			sOut.println("WRITE:" + fileUID)
+			for(l <- lines){
+				sOut.println(l)
+				println(l)
+			} 
+			sOut.println("EOF")
+			sOut.flush()
+			
+			//receive response: success/failure
+			message = sIn.readLine()
+			println(message)
 	
+			//terminate connection with file server
+			disconnect()
+		}
+		else{
+			println("invalid file")
+			disconnect()
+		}	
 	}
 	
+	/**
+	 *
+	 *
+	**/
 	def write(path : String){
+		println("WRITE")
 		//convert file to list of strings for transmission
 		val lines = Source.fromFile(path).getLines().toList
 
 		//setup
-		println("\nConnecting to directory server")
+		println("Connecting to directory server")
 		connect(directoryIP, directoryPort)
 
 		var fileServerIP : String = ""
@@ -132,7 +224,7 @@ class ClientProxy(){
 		//if the requested file does no exist, the server IP field will be empty
 		var temp = message.split(":") //messages of the form   NAME:DATA
 		if(temp.length > 1){
-			fileServerIP = temp(1) //
+			fileServerIP = temp(1) 
 			fileServerIP = message.split(":")(1)
 			message = sIn.readLine()
 			fileServerport = message.split(":")(1).toInt
@@ -142,15 +234,10 @@ class ClientProxy(){
 			println("IP: " + fileServerIP + "\nPort: " + fileServerport + "\nUID: " + fileUID)
 		
 			//terminate connection with directory server
-			sOut.println("DISCONNECT")
-			sOut.flush()
-			socket.close()
+			disconnect()
 			
 			//setup connection with file server
-			println("Connecting to file server")
-			socket = new Socket(fileServerIP, fileServerport)
-			sIn = new BufferedReader(new InputStreamReader(socket.getInputStream))
-			sOut = new PrintStream(socket.getOutputStream())
+			connect(fileServerIP,fileServerport)
 		
 			//send file to file server
 			println("sending file contents")
@@ -167,9 +254,7 @@ class ClientProxy(){
 			println(message)
 			
 			//terminate connection with file server
-			sOut.println("DISCONNECT")
-			sOut.flush()
-			socket.close()
+			disconnect()
 		}
 		else{
 			println("invalid file")
@@ -177,7 +262,5 @@ class ClientProxy(){
 			sOut.flush()
 			socket.close()
 		}
-		
-		
 	}
 }
