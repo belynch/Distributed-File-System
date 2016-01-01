@@ -12,6 +12,13 @@ class ClientProxy(){
 	var sIn : BufferedReader = null
 	var sOut : PrintStream = null
 	
+	val cache : Cache = new Cache()
+	
+	/**
+	 *
+	 * Initialises a TCP connection with a given IP and port number
+	 *
+	**/
 	def connect(ip : String, port : Int){
 		try{
 			socket = new Socket(ip, port)
@@ -24,6 +31,11 @@ class ClientProxy(){
 		
 	}
 	
+	/**
+	 *
+	 * Sends the disconnect command to the server and closes the socket
+	 *
+	**/
 	def disconnect(){
 		sOut.println("DISCONNECT")
 		sOut.flush()
@@ -32,6 +44,7 @@ class ClientProxy(){
 	
 	/**
 	 *
+	 * Reads a file from the file system
 	 *
 	**/
 	def read(file : String){
@@ -105,6 +118,7 @@ class ClientProxy(){
 	
 	/**
 	 *
+	 * Modifies an existing file stored in the file system
 	 *
 	**/
 	def modify(file : String){
@@ -197,7 +211,8 @@ class ClientProxy(){
 	}
 	
 	/**
-	 *
+	 * 
+	 * Writes a new file to the file system
 	 *
 	**/
 	def write(path : String){
