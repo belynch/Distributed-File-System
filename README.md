@@ -1,71 +1,105 @@
 # Distributed-File-System
 
+The distributed file system is comprised of a Directory Server, File Server and Client Proxy. 
+In order do identify the location of a file, the client must communicate with the direcctory 
+service to identify the server IP and port number of the file server containing the requested 
+file, and the UID of the file on that server. The client then communicates with the file server 
+using this information. The Client Proxy provides a scala interface for use by the client and 
+manages the caching of files.
 
 ###Protocol
 ___
 
-####CLIENT - DIRECTORY SERVER
+####DIRECTORY SERVER
 
-*Read request*
+Read request:
 ```
-READ: [String]\n
+READ: [filePath]\n
 ```
 
-*Read response*
+Read response:
 ```
 SERVER IP: [String]\n
 SERVER PORT: [Int]\n
 FILE UID: [Int]\n
 ```
-Location = empty string if invalid read request
+All fields will be empty if the file doesn't exist
 
 
-*Write request*
+Modify request:
 ```
-WRITE: [String]\n
+MODIFY: [filePath]\n
 ```
 
-*Write response*
+Modify response:
 ```
 SERVER IP: [String]\n
 SERVER PORT: [Int]\n
 FILE UID: [Int]\n
 ```
-Location = empty string if invalid write request
+All fields will be empty if the file doesn't exist
 
 
-*List request*
+Write request:
 ```
-LS: [String]
+WRITE: [filePath]\n
 ```
 
-*List response*
+Write response:
 ```
-NO. ITEMS: [Int]\n
-ITEM.1: [String]\n
+SERVER IP: [String]\n
+SERVER PORT: [Int]\n
+FILE UID: [Int]\n
+```
+All fields will be empty if the file doesn't exist
 
-ITEM.N: [String]\n
-```
+
+
 ___
-####CLIENT - FILE SERVER
+###FILE SERVER
 
-
-*Lock request*
+Read request:
 ```
-LOCK: [String]
-```
-
-*Lock response*
-```
-SUCCESS: [Bool]
+READ: [UID]\n
 ```
 
-*Unlock request*
+Read response:
 ```
-UNLOCK: [String]
+FILE NAME: [UID]\n
+FILE CONTENTS: [String]\n
+EOF
 ```
 
-Unlock response
+Modify request:
 ```
-SUCCESS: [Bool]
+MODIFY: [UID]\n
+```
+
+Modify response to client:
+```
+FILE NAME: [String]\n
+FILE CONTENTS: [String]\n
+EOF
+```
+client response to server:
+```
+MODIFIED FILE CONTENTS: [String]\n
+EOF
+```
+
+Modify termination from server:
+```
+SUCESS: [Boolean]
+```
+
+Write request:
+```
+WRITE: [UID]\n
+FILE CONTENTS: [String]\n
+EOF
+```
+
+Write response:
+```
+SUCESS: [Boolean]
 ```
