@@ -3,11 +3,6 @@ import java.net.Socket
 import java.io.{File}
 import scala.io.Source
 
-//
-// Could possibly store the fileID of the file on the file server to skip directory servere communication
-//
-//
-//
 
 class ClientProxy(){
 	
@@ -16,6 +11,9 @@ class ClientProxy(){
 
 	val directoryIP : String = "localhost"
 	val directoryPort : Int = 7000
+	
+	val lockServerIP : String = "localhost"
+	val lockServerPort : Int = 9000
 	
 	var socket : Socket = null
 	var sIn : BufferedReader = null
@@ -74,32 +72,39 @@ class ClientProxy(){
 		var fileExists = getFileID(file, READ)
 		//terminate connection with directory server
 		disconnect()
-			
+		
+		//make sure the file is in the file system
 		if(fileExists){
-			//check if the file is cached ( state = -1 if it isn't )
-			var state = cache.contains(file)
-			//if the cached state is less than that of the directory server(or it isn't cached), connect to file server
-			if(state < fileState){
-				//setup connection with file server
-				println("Connecting to file server")
-				connect(fileServerIP,fileServerport)
-				val receivedFile = getFile(fileUID, file)
-				//terminate connection with file server
-				disconnect()
-				
-				//if the file wasn't cached, add it
-				if(state == -1){
-					println("Caching file")
-					cache.addFile(receivedFile, fileState)
+			//make sure the file isn't locked
+			if(!isLocked(file)){
+				//check if the file is cached ( state = -1 if it isn't )
+				var state = cache.contains(file)
+				//if the cached state is less than that of the directory server(or it isn't cached), connect to file server
+				if(state < fileState){
+					//setup connection with file server
+					println("Connecting to file server")
+					connect(fileServerIP,fileServerport)
+					val receivedFile = getFile(fileUID, file)
+					//terminate connection with file server
+					disconnect()
+					
+					//if the file wasn't cached, add it
+					if(state == -1){
+						println("Caching file")
+						cache.addFile(receivedFile, fileState)
+					}
+					//otherwise update the cache entry
+					else {
+						println("Updating cached copy")
+						cache.updateFile(receivedFile, file, fileState)
+					}
 				}
-				//otherwise update the cache entry
-				else {
-					println("Updating cached copy")
-					cache.updateFile(receivedFile, file, fileState)
+				else{
+					println("Reading cached copy")
 				}
 			}
 			else{
-				println("Reading cached copy")
+				println("file is currently locked")
 			}
 		}
 		else{
@@ -122,7 +127,7 @@ class ClientProxy(){
 		//convert file to list of strings for transmission
 		val lines = Source.fromFile(path).getLines().toList
 		
-		println("WRITE")
+		println("\nWRITE")
 		println("Connecting to directory server")
 		connect(directoryIP, directoryPort)
 		var fileExists = getFileID(path, WRITE)
@@ -130,12 +135,18 @@ class ClientProxy(){
 		disconnect()
 			
 		if(fileExists){
-			//setup connection with file server
-			println("Connecting to file server")
-			connect(fileServerIP,fileServerport)
-			writeFile(fileUID, lines, WRITE)
-			//terminate connection with file server
-			disconnect()	
+			//make sure the file isn't locked
+			if(!isLocked(path)){
+				//setup connection with file server
+				println("Connecting to file server")
+				connect(fileServerIP,fileServerport)
+				writeFile(fileUID, lines, WRITE)
+				//terminate connection with file server
+				disconnect()
+			}
+			else{
+				println("file is currently locked")
+			}
 		}
 		else{
 			println("invalid file")
@@ -231,19 +242,99 @@ class ClientProxy(){
 	}
 	
 	
-	
-	def isLocked(fileUID : Int): Boolean = {
+	/**
+	 * 
+	 * Contacts the lock server to see if a file can be accessed
+	 *
+	**/
+	def isLocked(fileUID : String): Boolean = {
+		//setup connection with file server
+		println("Connecting to lock server")
+		connect(lockServerIP,lockServerPort)
 		
-		return true
+		//see if file is locked
+		sOut.println("ACCESS:" + fileUID)
+		sOut.flush()
+		
+		//receive lock status
+		message = sIn.readLine()
+		println(message)
+		var temp = message.split(":") 		//messages of the form   NAME:DATA
+		
+		disconnect()
+		
+		//lock status is 1 if its locked
+		if(temp(1).toInt == 1){
+			return true
+		}
+		else{
+			return false
+		}
 	}
 	
-	def lock(fileUID : Int): Boolean = {
+	/**
+	 * 
+	 * Contact the lock server to acquire the lock for a file
+	 *
+	**/
+	def lock(fileUID : String): Boolean = {
+		println("\nLOCK")
+		//setup connection with file server
+		println("Connecting to lock server")
+		connect(lockServerIP,lockServerPort)
 		
-		return true
+		//see if file can be acquired
+		sOut.println("ACQUIRE:" + fileUID)
+		sOut.flush()
+		
+		//receive lock acquire success
+		message = sIn.readLine()
+		println(message)
+		var temp = message.split(":") 		//messages of the form   NAME:DATA
+		
+		disconnect()
+		
+		//check lock acquire success
+		if(temp(1) == "true"){
+			return true
+		}
+		else{
+			return false
+		}
 	}
 	
-	def unLock(fileUID : Int): Boolean = {
+	/**
+	 * 
+	 * Contact the lock servre to release the lock on a file
+	 *
+	**/
+	def unlock(fileUID : String){
+		println("\nUNLOCK")
+		//setup connection with file server
+		println("Connecting to lock server")
+		connect(lockServerIP,lockServerPort)
 		
-		return true
+		//release the lock
+		sOut.println("RELEASE:" + fileUID)
+		sOut.flush()
+	}
+	
+	/**
+	 * 
+	 * Connect to each server and shut it down
+	 *
+	**/
+	def killAll(){
+		connect(directoryIP,directoryPort)
+		sOut.println("KILL_SERVICE")
+		sOut.flush()
+		
+		connect(fileServerIP,fileServerport)
+		sOut.println("KILL_SERVICE")
+		sOut.flush()
+		
+		connect(lockServerIP,lockServerPort)
+		sOut.println("KILL_SERVICE")
+		sOut.flush()
 	}
 }

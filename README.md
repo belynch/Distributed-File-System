@@ -1,13 +1,16 @@
 # Distributed-File-System
-
+___
 ###Overview
+___
 The distributed file system is comprised of a Directory Server, File Server and Client Proxy. 
 In order do identify the location of a file, the client must communicate with the direcctory 
 service to identify UID of the file and the IP and port number of the file server which has requested 
 file. The client then communicates with the file server using this information. The Client Proxy 
 provides a scala interface for the client and manages any caching.
 
+___
 ###Description
+___
 ####Directory Server
 The Directory Server contains a DirectoryManager which stores all file infromation as DirectoryEntry objects.
 The file name, file path and file location(file server ip/port/UID) are stored. The Directory Server handles two 
@@ -32,10 +35,14 @@ If the file is cached and up to date, the client doesn't connect to the File Ser
 Server).
 
 ####Locking
-
+Locking is implemented using a Lock Server. When a client wishes to read or write to a file they first contact the Lock 
+Server to make sure the file isn't locked. If it is locked, the command will fail. The Lock Server doesn't maintain a list
+of all the files and their lock state, but instead holds a list of currently locked files. If a client acquires the lock on
+a file, that file path is stored by the Lock Server. When they release the lock, the stored filepath is deleted by the 
+server and so that file can be accessed by all, or locked by the next client to attempt to acquire it. 
+___
 ###Protocol
 ___
-
 ####DIRECTORY SERVER
 
 Read request:
@@ -65,6 +72,35 @@ FILE UID: [Int]\n
 FILE STATE: [Int]\n
 ```
 Directory server assigns new file UID and location to write the file
+
+___
+###LOCK SERVER
+
+Access file:
+```
+ACCESS: [fileUID : Int]
+```
+
+Access response:
+```
+LOCK STATUS: [Int]
+```
+1 if locked, 0 if unlocked
+
+Acquire lock:
+```
+ACQUIRE: [fileUID : Int]
+```
+
+Acquire response:
+```
+SUCCESS: [Boolean]
+```
+
+Release lock:
+```
+RELEASE: [fileUID : Int]
+```
 ___
 ###FILE SERVER
 
@@ -89,5 +125,5 @@ EOF
 
 Write response:
 ```
-SUCESS: [Boolean]
+SUCCESS: [Boolean]
 ```
