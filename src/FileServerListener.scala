@@ -5,12 +5,10 @@ import java.io.{File}
 
 /**
  *
- * Worker thread class
+ * FileServerListener class
  *
 **/
 class FileServerListener(socket:Socket, serverInterface:FileServerInterface) extends Runnable {
-
-	//val sOut = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8")))
 	
 	var sIn = new BufferedReader(new InputStreamReader(socket.getInputStream))
 	var sOut : PrintStream = new PrintStream(socket.getOutputStream())
@@ -19,7 +17,7 @@ class FileServerListener(socket:Socket, serverInterface:FileServerInterface) ext
 	val IPaddress = socket.getLocalAddress().toString().drop(1)
 	
 	/**
-	 * Receives messages over a given socket and handles responses.
+	 * Receives messages over a given socket and invokes the corresponding handler.
 	**/
 	def run(){
 		println("THREAD " + Thread.currentThread().getId()+": running")
@@ -40,7 +38,7 @@ class FileServerListener(socket:Socket, serverInterface:FileServerInterface) ext
 						handleWrite(message)
 					}
 					else if(message.startsWith("DISCONNECT")){
-						hadnleDisconnect()
+						handleDisconnect()
 					}
 					else if(message == "KILL_SERVICE"){
 						handleKill()
@@ -56,7 +54,11 @@ class FileServerListener(socket:Socket, serverInterface:FileServerInterface) ext
 		}
 	}
 
-	
+	/**
+	 *
+	 * Sends an error message over the connection
+	 *
+	**/
 	def error(code:Int, description:String){
 		sOut.println("ERROR_CODE: " + code
 						+ "\nERROR_DESCRIPTION: " + description)
@@ -138,6 +140,8 @@ class FileServerListener(socket:Socket, serverInterface:FileServerInterface) ext
 			//overwrite the file entry if it doesn't exist
 			serverInterface.getFile(fileUID.toInt).setFile(file)
 			println("FILE OVERWRITE: " + fileUID)
+			sOut.println("OVERWRITE SUCCESS: " + fileUID)
+			sOut.flush()
 		}
 	}
 	
@@ -146,7 +150,7 @@ class FileServerListener(socket:Socket, serverInterface:FileServerInterface) ext
 	 * Handler for disconnect command
 	 *
 	**/
-	def hadnleDisconnect() {
+	def handleDisconnect() {
 		sOut.println("DISCONNECTED FROM DIRECTORY SERVER"
 						+ "\nIP:" + IPaddress 
 						+ "\nPort:" + serverInterface.getPort)

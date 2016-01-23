@@ -3,6 +3,12 @@ import java.net.Socket
 import java.io.{File}
 import scala.io.Source
 
+//
+// Could possibly store the fileID of the file on the file server to skip directory servere communication
+//
+//
+//
+
 class ClientProxy(){
 	
 	val READ : String = "READ:"
@@ -21,7 +27,8 @@ class ClientProxy(){
 	var fileServerIP : String = ""
 	var fileServerport : Int = -1
 	var fileUID : Int = -1
-		
+	var fileState : Int = -1
+	
 	/**
 	 *
 	 * Initialises a TCP connection with a given IP and port number
@@ -59,6 +66,7 @@ class ClientProxy(){
 		fileServerIP = ""
 		fileServerport = -1
 		fileUID = -1
+		fileState = -1
 		
 		println("\nREAD")
 		println("Connecting to directory server")
@@ -68,12 +76,31 @@ class ClientProxy(){
 		disconnect()
 			
 		if(fileExists){
-			//setup connection with file server
-			println("Connecting to file server")
-			connect(fileServerIP,fileServerport)
-			val receivedFile = getFile(fileUID, file)
-			//terminate connection with file server
-			disconnect()	
+			//check if the file is cached ( state = -1 if it isn't )
+			var state = cache.contains(file)
+			//if the cached state is less than that of the directory server(or it isn't cached), connect to file server
+			if(state < fileState){
+				//setup connection with file server
+				println("Connecting to file server")
+				connect(fileServerIP,fileServerport)
+				val receivedFile = getFile(fileUID, file)
+				//terminate connection with file server
+				disconnect()
+				
+				//if the file wasn't cached, add it
+				if(state == -1){
+					println("Caching file")
+					cache.addFile(receivedFile, fileState)
+				}
+				//otherwise update the cache entry
+				else {
+					println("Updating cached copy")
+					cache.updateFile(receivedFile, file, fileState)
+				}
+			}
+			else{
+				println("Reading cached copy")
+			}
 		}
 		else{
 			println("invalid file")
@@ -136,8 +163,10 @@ class ClientProxy(){
 			fileServerport = message.split(":")(1).toInt
 			message = sIn.readLine()
 			fileUID = message.split(":")(1).toInt
+			message = sIn.readLine()
+			fileState = message.split(":")(1).toInt
 			
-			println("IP: " + fileServerIP + "\nPort: " + fileServerport + "\nUID: " + fileUID)
+			println("IP: " + fileServerIP + "\nPort: " + fileServerport + "\nUID: " + fileUID + "\nState: " + fileState)
 			result = true;
 		}
 		else{
@@ -199,5 +228,22 @@ class ClientProxy(){
 		//terminate connection with file server
 		disconnect()
 		return receivedFile
+	}
+	
+	
+	
+	def isLocked(fileUID : Int): Boolean = {
+		
+		return true
+	}
+	
+	def lock(fileUID : Int): Boolean = {
+		
+		return true
+	}
+	
+	def unLock(fileUID : Int): Boolean = {
+		
+		return true
 	}
 }

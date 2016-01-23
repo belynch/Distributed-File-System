@@ -8,8 +8,6 @@ import scala.io.BufferedSource
  *
 **/
 class DirectoryServerListener(socket:Socket, serverInterface:DirectoryServerInterface) extends Runnable {
-
-	//val sOut = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8")))
 	
 	var sIn = new BufferedReader(new InputStreamReader(socket.getInputStream))
 	var sOut : PrintStream = new PrintStream(socket.getOutputStream())
@@ -18,7 +16,7 @@ class DirectoryServerListener(socket:Socket, serverInterface:DirectoryServerInte
 	val IPaddress = socket.getLocalAddress().toString().drop(1)
 	
 	/**
-	 * Receives messages over a given socket and handles responses.
+	 * Receives messages over a given socket and invokes the corresponding handler.
 	**/
 	def run(){
 		println("THREAD " + Thread.currentThread().getId()+": running")
@@ -35,14 +33,11 @@ class DirectoryServerListener(socket:Socket, serverInterface:DirectoryServerInte
 					else if(message.startsWith("READ")){
 						handleRead(message)
 					}
-					else if(message.startsWith("MODIFY")){
-						handleModify(message)
-					}
 					else if(message.startsWith("WRITE")){
 						handleWrite(message)
 					}
 					else if(message.startsWith("DISCONNECT")){
-						hadnleDisconnect()
+						handleDisconnect()
 					}
 					else if(message == "KILL_SERVICE"){
 						handleKill()
@@ -57,12 +52,22 @@ class DirectoryServerListener(socket:Socket, serverInterface:DirectoryServerInte
 			case e: SocketException => println("THREAD " + Thread.currentThread().getId()+" SocketException: worker run function failed")
 		}
 	}
-
+	
+	/**
+	 *
+	 * Sends an error message over the connection
+	 *
+	**/
 	def error(code:Int, description:String){
 		sOut.println("ERROR_CODE: " + code
 						+ "\nERROR_DESCRIPTION: " + description)
 	}
 	
+	/**
+	 *
+	 * Handler for helo command
+	 *
+	**/
 	def handleHelo(message:String){
 		sOut.println(message + "\nIP:" + IPaddress 
 								+"\nPort:" + serverInterface.getPort)
@@ -79,8 +84,9 @@ class DirectoryServerListener(socket:Socket, serverInterface:DirectoryServerInte
 		
 		if(serverInterface.fileExists(file)) {
 			sOut.println("SERVER IP:" + serverInterface.getFileServerIP 
-							+ "\nSERVER Port:" + serverInterface.getFileServerPort
-							+ "\nFILE UID:" + serverInterface.getFileUID(file))
+							+ "\nSERVER PORT:" + serverInterface.getFileServerPort
+							+ "\nFILE UID:" + serverInterface.getFileUID(file)
+							+ "\nFILE STATE:" + serverInterface.getFileState(file))
 			sOut.flush()
 			println("READ::UID: " + serverInterface.getFileUID(file))
 		}
@@ -88,30 +94,8 @@ class DirectoryServerListener(socket:Socket, serverInterface:DirectoryServerInte
 			//invalid read
 			sOut.println("SERVER IP:" + "" 
 							+ "\nSERVER Port:" + ""
-							+ "\nFILE UID:" + "")
-			sOut.flush()
-		}
-	}
-	
-	/**
-	 *
-	 * Handler for modify command
-	 *
-	**/
-	def handleModify(message:String){
-		val file = message.split(":")(1)
-		
-		if(serverInterface.fileExists(file)) {
-			sOut.println("SERVER IP:" + serverInterface.getFileServerIP 
-							+ "\nSERVER Port:" + serverInterface.getFileServerPort
-							+ "\nFILE UID:" + serverInterface.getFileUID(file))
-			sOut.flush()
-		}
-		else{
-			//invalid modify
-			sOut.println("SERVER IP:" + ""
-							+ "\nSERVER Port:" + ""
-							+ "\nFILE UID:" + "")
+							+ "\nFILE UID:" + ""
+							+ "\nFILE STATE:" + "")
 			sOut.flush()
 		}
 	}
@@ -127,20 +111,29 @@ class DirectoryServerListener(socket:Socket, serverInterface:DirectoryServerInte
 		if(serverInterface.writeFile(file)){
 			sOut.println("SERVER IP:" + serverInterface.getFileServerIP 
 							+ "\nSERVER Port:" + serverInterface.getFileServerPort
-							+ "\nFILE UID:" + serverInterface.getFileUID(file))
+							+ "\nFILE UID:" + serverInterface.getFileUID(file)
+							+ "\nFILE STATE:" + serverInterface.getFileState(file))
 			sOut.flush()
 			println("WRITE::UID: " + serverInterface.getFileUID(file))
 		}
 		else{
-			//invalid write
-			sOut.println("SERVER IP:" + "" 
-							+ "\nSERVER Port:" + ""
-							+ "\nFILE UID:" + "")
+			//file already exists, return info to overwrite it
+			sOut.println("SERVER IP:" + serverInterface.getFileServerIP 
+							+ "\nSERVER Port:" + serverInterface.getFileServerPort
+							+ "\nFILE UID:" + serverInterface.getFileUID(file)
+							+ "\nFILE STATE:" + serverInterface.getFileState(file))
 			sOut.flush()
+			//client is going to write to the file so update its state
+			serverInterface.updateFileState(file)
 		}
 	}
 	
-	def hadnleDisconnect() {
+	/**
+	 *
+	 * Handler for disconnect command
+	 *
+	**/
+	def handleDisconnect() {
 		sOut.println("DISCONNECTED FROM DIRECTORY SERVER"
 						+ "\nIP:" + IPaddress 
 						+ "\nPort:" + serverInterface.getPort)
@@ -150,6 +143,11 @@ class DirectoryServerListener(socket:Socket, serverInterface:DirectoryServerInte
 		socket.close
 	}
 	
+	/**
+	 *
+	 * Handler for kill service command
+	 *
+	**/
 	def handleKill(){
 		serverInterface.shutdown()
 		socket.close()

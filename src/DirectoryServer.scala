@@ -12,6 +12,8 @@ trait DirectoryServerInterface {
   def fileExists(file : String): Boolean
   def getCurrentUID(): Int
   def getFileUID(file : String): Int
+  def getFileState(file : String): Int
+  def updateFileState(file : String)
   def getFileServerIP: String
   def getFileServerPort: Int
 
@@ -116,6 +118,14 @@ object DirectoryServer extends DirectoryServerInterface {
 			UID = directory.getUID(file)
 		}
 		return UID
+	}
+	
+	def getFileState(file : String): Int = {
+		return directory.getEntry(file).state
+	}
+	
+	def updateFileState(file : String){
+		directory.getEntry(file).updateState()
 	}
 
 	def getFileServerIP: String = {

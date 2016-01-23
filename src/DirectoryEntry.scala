@@ -13,7 +13,7 @@ class DirectoryEntry(parent: String, name: String, host: String, port : Int, id 
 	var host_name : String = host
 	var host_port : Int = port
 	var host_id : Int = id
-	
+	var state : Int = 0
 	
 	
 	def setHostName(name : String){
@@ -32,4 +32,7 @@ class DirectoryEntry(parent: String, name: String, host: String, port : Int, id 
 		distinguished_name = parent + "/" + relative_distinguished_name
 	}
 	
+	def updateState(){
+		state = state + 1
+	}
 }

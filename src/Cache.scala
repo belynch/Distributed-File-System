@@ -13,9 +13,14 @@ class Cache(){
 		files = new CacheEntry(file, stamp)  :: files
 	}
 	
+	/**
+	 *
+	 * Retrieves a file from the cache
+	 *
+	**/
 	def retrieveFile(filePath : String) : CacheEntry = {
 		var temp : CacheEntry = null
-		if(cacheContains(filePath)) {
+		if(contains(filePath) != -1) {
 			for(f <- files){
 				if(f.filePath == filePath){
 					return f
@@ -23,6 +28,18 @@ class Cache(){
 			}
 		}
 		return temp
+	}
+	
+	/**
+	 *
+	 * Update cache entry
+	 *
+	**/
+	def updateFile(file: File, filePath : String, state : Int){
+		var entry = retrieveFile(filePath)
+		entry.file = file
+		entry.filePath = file.getPath()
+		entry.state = state
 	}
 	
 	/**
@@ -42,18 +59,19 @@ class Cache(){
 	
 	/**
 	 *
-	 * Returns true if the specified file is contained within the cache
+	 * Returns the state of the entry if it is contained within the cache
+	 * otherwise returns -1
 	 *
 	**/
-	def cacheContains(filePath : String) : Boolean = {
+	def contains(filePath : String) : Int = {
 		if(!isEmpty()){
 			for(f <- files){
 				if(f.filePath == filePath){
-					return true
+					return f.state
 				} 
 			}
 		}
-		return false
+		return -1
 	}
 	
 	/**
