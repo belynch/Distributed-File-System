@@ -17,6 +17,5 @@ object Client {
 		
 		proxy.read("../TestFiles/writeTest.txt")
 		
-		proxy.modify("../TestFiles/writeTest.txt")
 	}
 }
