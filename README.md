@@ -127,3 +127,13 @@ Write response:
 ```
 SUCCESS: [Boolean]
 ```
+___
+###Running
+___
+```
+sh compile.sh
+sh directoryServer.sh
+sh fileServer.sh
+sh lockServer.sh
+sh clientTest.sh
+```
