@@ -132,8 +132,9 @@ ___
 ___
 ```
 sh compile.sh
-sh directoryServer.sh
-sh fileServer.sh
-sh lockServer.sh
+sh directoryServer.sh 7000
+sh fileServer.sh 8000
+sh lockServer.sh 9000
 sh clientTest.sh
 ```
+The above port numbers are hardcoded into the tests, as well as the server IP addresses(localhost)
