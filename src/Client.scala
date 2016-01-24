@@ -38,19 +38,19 @@ object Client {
 		//test if cache entry is updated - success
 		proxy.read("../TestFiles/writeTest.txt")
 		
-		//test if locking server changes lock state
+		//test if locking server changes lock state - success
 		proxy.lock("../TestFiles/writeTest.txt")
 		
-		//test if write fails due to lock
+		//test if write fails due to lock - success
 		proxy.write("../TestFiles/writeTest.txt")
 		
-		//test if read fails due to lock
+		//test if read fails due to lock - success
 		proxy.read("../TestFiles/writeTest.txt")
 		
-		//test if locking server changes lock state
+		//test if locking server changes lock state - success
 		proxy.unlock("../TestFiles/writeTest.txt")
 		
-		//test if read succeeds after unlock
+		//test if read succeeds after unlock - success
 		proxy.read("../TestFiles/writeTest.txt")
 		
 		//shut down the directory, file and lock servers
